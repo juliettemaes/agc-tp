@@ -13,7 +13,9 @@ Vous devrez développer un programme effectuant une dé-duplication en séquence
 
 Vous utiliserez les librairies nwalign3, pytest et pylint de Python:
 ```
-pip3 install --user nwalign3 pytest pylint pytest-cov
+conda create -n agc python=3.8 pip numpy
+conda activate agc
+conda install -c conda-forge -c bioconda -c defaults numpy nwalign3 pytest pylint pytest-cov
 ```
 
 ## Utilisation
@@ -29,7 +31,13 @@ Vous devrez développer un programme python3 effectuant une dé-duplication en s
 
  ## Tests
 
-Vous testerez vos fonctions à l’aide de la commande pytest --cov=agc à exécuter dans le dossier agc-tp/. En raison de cette contrainte, les noms des fonctions ne seront pas libre. Il sera donc impératif de respecter le nom des fonctions “imposées”, de même que leur caractéristique et paramètres. 
+Vous testerez vos fonctions à l’aide de la commande 
+
+```
+pytest --cov=agc -v -s --ignore=tests/test_chimera_removal.py
+```
+
+à exécuter dans le dossier agc-tp/. En raison de cette contrainte, les noms des fonctions ne seront pas libre. Il sera donc impératif de respecter le nom des fonctions “imposées”, de même que leur caractéristique et paramètres. 
 Vous vérifierez également la qualité syntaxique de votre programme en exécutant la commande: pylint agc.py
 
 ## Contact
