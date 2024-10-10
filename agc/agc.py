@@ -128,7 +128,12 @@ def get_identity(alignment_list: List[str]) -> float:
     :param alignment_list:  (list) A list of aligned sequences in the format ["SE-QUENCE1", "SE-QUENCE2"]
     :return: (float) The rate of identity between the two sequences.
     """
-    pass
+    id_count = 0
+    for index, aa in enumerate(alignment_list[0]):
+        if aa == alignment_list[1][index]:
+            id_count += 1
+    return (id_count / len(alignment_list[0]) * 100)
+
 
 def abundance_greedy_clustering(amplicon_file: Path, minseqlen: int, mincount: int, chunk_size: int, kmer_size: int) -> List:
     """Compute an abundance greedy clustering regarding sequence count and identity.
@@ -141,7 +146,56 @@ def abundance_greedy_clustering(amplicon_file: Path, minseqlen: int, mincount: i
     :param kmer_size: (int) A fournir mais non utilise cette annee
     :return: (list) A list of all the [OTU (str), count (int)] .
     """
-    pass
+
+    print("working until here 0")
+    # Get the dereplicated sequences
+    dereplicated_seq = dereplication_fulllength(
+        amplicon_file,
+        minseqlen,
+        mincount
+        )
+
+    # Create the alignment bewteen the sequence and the OTUs
+    i = 0
+    print("working until here")
+    for seq, count in dereplicated_seq:
+        print("i", i)
+        print("i", i, "seq", seq, "count", count)
+        # Initialize the OTU list
+        if i == 0:
+            OTU_list = [[seq, count]]
+        else:
+            # Compare the sequence with the OTU list
+            to_add = False
+            for index, otu in enumerate(OTU_list):
+                if seq != otu[0]:
+                    alignment = nw.global_align(
+                        seq,
+                        otu[0],
+                        gap_open=-1,
+                        gap_extend=-1,
+                        matrix=str(Path(__file__).parent / "MATCH"))
+                    print("--------------------- alignment ---------------------")
+                    print(alignment)
+
+                    # Compute the identity
+                    identity = get_identity(alignment)
+                    print("identity", identity)
+                    # Update the OTU list
+                    if identity >= 97 and count > otu[1]:
+                        OTU_list[index] = [seq, count]
+                        break
+                    elif identity >= 97 and count <= otu[1]:
+                        to_add = False
+                    elif identity < 97:
+                        to_add = True
+            if to_add:
+                OTU_list.append([seq, count])
+        i += 1
+        print(" --------------------- OTU_list ---------------------")
+        print(OTU_list)
+    return OTU_list
+
 
 
 def write_OTU(OTU_list: List, output_file: Path) -> None:
@@ -150,7 +204,14 @@ def write_OTU(OTU_list: List, output_file: Path) -> None:
     :param OTU_list: (list) A list of OTU sequences
     :param output_file: (Path) Path to the output file
     """
-    pass
+
+    with open(output_file, 'w') as f:
+        for index, (sequence, count) in enumerate(OTU_list, start=1):
+            # Write header
+            f.write(f">OTU_{index} occurrence:{count}\n")
+            # Write sequence
+            wrapped_sequence = textwrap.fill(sequence, width=80)
+            f.write(f"{wrapped_sequence}\n")
 
 
 #==============================================================
@@ -162,7 +223,17 @@ def main(): # pragma: no cover
     """
     # Get arguments
     args = get_arguments()
-    # Votre programme ici
+    
+    # Compute the OTU
+    OTU_list = abundance_greedy_clustering(
+        args.amplicon_file,
+        args.minseqlen,
+        args.mincount,
+        0,
+        0
+    )
+    # Write the output 
+    write_OTU(OTU_list, args.output_file)
 
 
 
