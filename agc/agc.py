@@ -65,7 +65,7 @@ def get_arguments(): # pragma: no cover
     parser = argparse.ArgumentParser(description=__doc__, usage=
                                      "{0} -h"
                                      .format(sys.argv[0]))
-    parser.add_argument('-i', '-amplicon_file', dest='amplicon_file', type=isfile, required=True, 
+    parser.add_argument('-i', '-amplicon_file', dest='amplicon_file', type=isfile, required=True,
                         help="Amplicon is a compressed fasta file (.fasta.gz)")
     parser.add_argument('-s', '-minseqlen', dest='minseqlen', type=int, default = 400,
                         help="Minimum sequence length for dereplication (default 400)")
@@ -92,7 +92,7 @@ def read_fasta(amplicon_file: Path, minseqlen: int) -> Iterator[str]:
                 sequence = ""
             else:
                 sequence += line.strip()
-        
+
         # Handle the last sequence
         if len(sequence) >= minseqlen:
             yield sequence
@@ -115,6 +115,9 @@ def dereplication_fulllength(amplicon_file: Path, minseqlen: int, mincount: int)
             seq_dict[sequence] = 1
     # Order the dictionary by count (decreasing)
     seq_dict = sorted(seq_dict.items(), key=lambda item: item[1], reverse=True)
+    print("-------------------seq_dict-------------------")
+    print(seq_dict)
+    print("--------------------------------------------")   
     # Return the sequences as a generator
     for sequence, count in seq_dict:
         if count >= mincount:
@@ -157,7 +160,7 @@ def abundance_greedy_clustering(amplicon_file: Path, minseqlen: int, mincount: i
 
     # Create the alignment bewteen the sequence and the OTUs
     i = 0
-    print("working until here")
+    # print("working until here")
     for seq, count in dereplicated_seq:
         print("i", i)
         print("i", i, "seq", seq, "count", count)
@@ -166,8 +169,8 @@ def abundance_greedy_clustering(amplicon_file: Path, minseqlen: int, mincount: i
             OTU_list = [[seq, count]]
         else:
             # Compare the sequence with the OTU list
-            to_add = False
-            for index, otu in enumerate(OTU_list):
+            to_add = True
+            for otu in OTU_list:
                 if seq != otu[0]:
                     alignment = nw.global_align(
                         seq,
@@ -181,19 +184,19 @@ def abundance_greedy_clustering(amplicon_file: Path, minseqlen: int, mincount: i
                     # Compute the identity
                     identity = get_identity(alignment)
                     print("identity", identity)
-                    # Update the OTU list
-                    if identity >= 97 and count > otu[1]:
-                        OTU_list[index] = [seq, count]
-                        break
-                    elif identity >= 97 and count <= otu[1]:
+                    print("sequence occurency", count)
+                    print("otu occurency", otu[1])
+                    # Check if the identity is greater than 97%
+                    if identity >= 97:
                         to_add = False
-                    elif identity < 97:
-                        to_add = True
+                        break
+            # Add the sequence to the OTU list if it is not already in
             if to_add:
                 OTU_list.append([seq, count])
         i += 1
         print(" --------------------- OTU_list ---------------------")
-        print(OTU_list)
+        for otu in OTU_list:
+            print(otu)
     return OTU_list
 
 
@@ -225,15 +228,15 @@ def main(): # pragma: no cover
     args = get_arguments()
     
     # Compute the OTU
-    OTU_list = abundance_greedy_clustering(
+    otu_list = abundance_greedy_clustering(
         args.amplicon_file,
         args.minseqlen,
         args.mincount,
-        0,
-        0
+        1000,
+        8
     )
-    # Write the output 
-    write_OTU(OTU_list, args.output_file)
+    # Write the output
+    write_OTU(otu_list, args.output_file)
 
 
 
