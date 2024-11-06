@@ -1,46 +1,29 @@
-# Calcul des OTU 
+# Abundance Greedy Clustering and operational taxonomic unit (OTU) Calculation
 
-Vous trouverez la description complète du TP [ici](https://docs.google.com/document/d/1qWNqPZ9Ecd-yZ5Hpl6n2zd7ZGtHPjf3yaW1ulKRdWnk/edit?usp=sharing).
+You can find the complete description of the practical work [here](https://docs.google.com/document/d/1qWNqPZ9Ecd-yZ5Hpl6n2zd7ZGtHPjf3yaW1ulKRdWnk/edit?usp=sharing).
 
 ## Introduction
 
-L’objectif de ce TP sera de calculer les OTU obtenues à partir d’un séquençage “mock”. Nous n’avons amplifié que les bactéries (et non les champignons). 8 espèces sont ainsi attendues.
+The objective of this work is to calculate the OTUs obtained from a "mock" sequencing. Only bacterial sequences (not fungi) were amplified, and thus 8 species are expected.
 
-Vous devrez développer un programme effectuant une dé-duplication en séquence complète (“dereplication full length”), une recherche des séquences chimériques et un regroupement basé sur un algorithme glouton (“Abundance Greedy Clustering”).  
+The program performs full-length sequence deduplication ("dereplication full length"), chimeric sequence detection, and clustering based on a greedy algorithm ("Abundance Greedy Clustering").
 
+## Installing Dependencies
 
-## Installation des dépendances
-
-Vous utiliserez les librairies nwalign3, pytest et pylint de Python:
+You will use the Python libraries nwalign3, pytest, and pylint:
 ```
 conda create -n agc python=3.8 pip numpy
 conda activate agc
 conda install -c conda-forge -c bioconda -c defaults numpy nwalign3 pytest pylint pytest-cov
 ```
 
-## Utilisation
+## Usage
 
-Vous devrez développer un programme python3 effectuant une dé-duplication en séquence complète (“dereplication full length”), une recherche des séquences chimériques et un regroupement basé sur un algorithme glouton (“Abundance Greedy Clustering”). Il prendra pour arguments:
-
- -i, -amplicon_file fichier contenant des séquences au format FASTA
- -s, -minseqlen Longueur minimum des séquences (optionnel - valeur par défaut 400)
- -m, -mincount Comptage minimum des séquences (optionnel - valeur par défaut 10)
- -c, -chunk_size Taille des partitions de séquence (optionnel - valeur par défaut 100)
- -k, -kmer_size Longueur des “kmer” (optionnel - valeur par défaut 8)
- -o, -output_file fichier de sortie avec les OTU au format FASTA
-
- ## Tests
-
-Vous testerez vos fonctions à l’aide de la commande 
-
-```
-pytest --cov=agc -v -s --ignore=tests/test_chimera_removal.py
-```
-
-à exécuter dans le dossier agc-tp/. En raison de cette contrainte, les noms des fonctions ne seront pas libre. Il sera donc impératif de respecter le nom des fonctions “imposées”, de même que leur caractéristique et paramètres. 
-Vous vérifierez également la qualité syntaxique de votre programme en exécutant la commande: pylint agc.py
-
-## Contact
-
-En cas de questions, vous pouvez me contacter par email: amine.ghozlane[at]pasteur.fr
-
+This program performs full-length sequence deduplication ("dereplication full length"), chimeric sequence detection, and clustering based on a greedy algorithm ("Abundance Greedy Clustering"). 
+Run agc/agc.py script, with the following arguments :
+- -i, -amplicon_file file containing sequences in FASTA format
+- -s, -minseqlen minimum sequence length (optional - default value 400)
+- -m, -mincount minimum sequence count (optional - default value 10)
+- -c, -chunk_size sequence partition size (optional - default value 100)
+- -k, -kmer_size kmer length (optional - default value 8)
+- -o, -output_file output file with OTUs in FASTA format
